@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Course } from '../types'
-import { getCourses } from '../services/api'
+import { getCourses, deleteCourse } from '../services/api'
 
 function Courses() {
   const [courses, setCourses] = useState<Course[]>([])
@@ -21,6 +21,12 @@ function Courses() {
   useEffect(() => {
     load()
   }, [page])
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('¿Seguro que quieres eliminar este curso?')) return
+    await deleteCourse(id)
+    setCourses(courses.filter(c => c.id !== id))
+  }
 
   const getBadge = (status: string) => {
     if (status === 'APROBADO') return 'bg-green-100 text-green-700'
@@ -67,11 +73,18 @@ function Courses() {
                 <span className={`text-sm px-3 py-1 rounded-full font-medium ${getBadge(course.status)}`}>
                   {getLabel(course.status)}
                 </span>
+              
                 <button
                   onClick={() => navigate(`/courses/${course.id}`)}
                   className="text-blue-600 text-sm hover:underline"
                 >
                   Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(course.id)}
+                  className="text-red-600 text-sm hover:underline"
+                >
+                  Eliminar
                 </button>
               </div>
             </div>
